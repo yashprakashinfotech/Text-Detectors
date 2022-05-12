@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Text Detectors</string>
+    <string name="detect">Detect</string>
+    <string name="snap">Snap</string>
+    <string name="welcome_to_text_scanner_app">Welcome to Text Scanner App</string>
+    <string name="capture_the_image">Capture the Image</string>
 </resources>
