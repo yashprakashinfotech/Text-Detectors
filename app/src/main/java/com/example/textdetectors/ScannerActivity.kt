@@ -10,7 +10,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.provider.Settings
-import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -19,7 +18,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
@@ -41,6 +39,7 @@ class ScannerActivity : AppCompatActivity() {
     private val requestCodeCamera = 2
     private var cameraPermissionCode = 1
     private lateinit var imgBitmap : Bitmap
+    private var lastValue : String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,15 +64,14 @@ class ScannerActivity : AppCompatActivity() {
             val image : InputImage = InputImage.fromBitmap(imgBitmap,0)
             val recognizer : TextRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
-            val result : Task<Text> = recognizer.process(image).addOnSuccessListener(object : OnSuccessListener<Text>{
+//            val result : Task<Text> = recognizer.process(image).addOnSuccessListener(object : OnSuccessListener<Text>{
+            recognizer.process(image).addOnSuccessListener(object : OnSuccessListener<Text>{
                 override fun onSuccess(p0: Text?) {
 
-                    val result: StringBuilder = StringBuilder()
-//                val block
+                    val result = StringBuilder()
                     for (block: Text.TextBlock in p0!!.textBlocks){
-                        val blockText = block.text
+//                        val blockText = block.text
                         val blockCornerPoint : Array<out Point>? = block.cornerPoints
-//                    val blockCornerPoint : Array<out Point>? = block.cornerPoints
                         val blockFrame : Rect = block.boundingBox!!
                         for (line : Text.Line in block.lines){
                             val lineTExt = line.text
@@ -81,14 +79,22 @@ class ScannerActivity : AppCompatActivity() {
                             val linRect = line.boundingBox
                             for (element : Text.Element in line.elements){
                                 val elementText = element.text
+                                val space = " "
                                 result.append(elementText)
-                                txtDetect.text = blockText
+                                result.append(space)
+                                lastValue = result.toString()
+//                                txtDetect.text = blockText
                             }
 //                            txtDetect.text = blockText
-
-//                            Log.d("Boss","text detect $txtDetect")
                         }
 
+                    }
+
+                    if(result.isEmpty()){
+                        Toast.makeText(this@ScannerActivity,"It is Empty",Toast.LENGTH_SHORT).show()
+                    }else{
+                        txtDetect.text = lastValue
+//                        txtDetect.isSelected
                     }
 
                 }
